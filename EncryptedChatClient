@@ -1,0 +1,49 @@
+import processing.net.*;
+
+Client c;
+String input = new String();
+int data[];
+String currentInput = new String();
+String lastInput = new String();
+
+void setup() 
+{
+  size(450, 255);
+  background(204);
+  stroke(0);
+  frameRate(30); // Slow it down a little
+  // Connect to the server's IP address and port
+  c = new Client(this, "127.0.0.1", 12345); // Replace with your server's IP and port
+}
+
+void draw() 
+{
+  background(255, 255, 255);
+  fill(0);
+  text(input, width/2, height/2);
+  fill(255, 0, 0);
+  text(currentInput, width/2, height*.75);
+  // Receive data from server
+  if (c.available() > 0) {
+    input = c.readString();
+    println(input);
+    background(255, 255, 255);
+    fill(0);
+    text(input, width/2, height/2);
+    fill(255, 0, 0);
+  }
+}
+
+  void keyPressed(){
+    if(key == ENTER){
+      lastInput = currentInput = currentInput + key;
+      c.write(lastInput);
+      currentInput = "";
+    }
+    else if(key == BACKSPACE && currentInput.length() > 0){
+      currentInput = currentInput.substring(0, currentInput.length() - 1);
+    }
+    else{
+      currentInput = currentInput + key;
+    }
+}
