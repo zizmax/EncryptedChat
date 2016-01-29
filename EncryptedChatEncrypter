@@ -5,7 +5,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-//import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64;
 
 
 public void setup() {
@@ -14,11 +14,11 @@ public void setup() {
   String salt = "randomize this";
   
   //below here is kind of broken. Not sure why
-  byte[] hash = (salt + password).getBytes("UTF-8");
-  MessageDigest sha = MessageDigest.getInstance("SHA-1");
-  hash = sha.digest(hash);
-  hash = Arrays.copyOf(hash, 16);
-  String key1 = new String(hash, "ISO-8859-1");
+  //byte[] hash = (salt + password).getBytes("UTF-8");
+  //MessageDigest sha = MessageDigest.getInstance("SHA-1");
+  //hash = sha.digest(hash);
+  //hash = Arrays.copyOf(hash, 16);
+  String key1 = "Bar12345Bar12345";
   
   String initVector = "RandomInitVector"; // 16 bytes IV
   System.out.println(decrypt(key1, initVector,
@@ -30,10 +30,10 @@ public void draw() {
   stroke(0, 10);
 }
 
-public static String encrypt(String key, String initVector, String value) {
+public static String encrypt(String key1, String initVector, String value) {
     try {
         IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
-        SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+        SecretKeySpec skeySpec = new SecretKeySpec(key1.getBytes("UTF-8"), "AES");
 
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
@@ -50,10 +50,11 @@ public static String encrypt(String key, String initVector, String value) {
     return null;
 }
 
-public static String decrypt(String key, String initVector, String encrypted) {
+public static String decrypt(String key1, String initVector, String encrypted) {
+  key1 = "Bar12345Bar12341";
     try {
         IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
-        SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+        SecretKeySpec skeySpec = new SecretKeySpec(key1.getBytes("UTF-8"), "AES");
 
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
@@ -61,8 +62,14 @@ public static String decrypt(String key, String initVector, String encrypted) {
         byte[] original = cipher.doFinal(DatatypeConverter.parseBase64Binary(encrypted));
 
         return new String(original);
-    } catch (Exception ex) {
-        ex.printStackTrace();
+    } 
+    catch (javax.crypto.BadPaddingException e){
+      println("Wrong key!");
+      return "Try again with the correct key!";
+      
+    }    
+    catch (Exception e) {
+        e.printStackTrace();
     }
 
     return null;
