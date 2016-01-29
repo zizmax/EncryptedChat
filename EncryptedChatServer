@@ -6,8 +6,9 @@ String input = new String();
 int data[];
 String lastInput = new String();
 String currentInput = new String();
-String messages[] = new String[5];
+String messages[] = new String[] {"", "", "", "", ""};
 int queue = 0;
+String user = "Server";
 
 void setup() 
 {
@@ -26,7 +27,7 @@ void draw()
   text(ip, 40, 40);
   for(int i = 0; i < messages.length; i++){
     text(messages[i], width/6, (height/2 + (i * 20)));
-    println("printed!");
+    //println("printed!");
   }
   fill(255, 0, 0);
   text(currentInput, width/2, height*.75);
@@ -34,6 +35,11 @@ void draw()
   c = s.available();
   if (c != null) {
     input = c.readString();
+    if(queue == 5){
+        queue = 0;
+    }
+    messages[queue] = input;
+    queue++;
     println(input);
     background(255, 255, 255);
     fill(0);
@@ -46,7 +52,7 @@ void draw()
       if(queue == 5){
         queue = 0;
       }
-      messages[queue] = currentInput = currentInput + key;
+      messages[queue] = currentInput = user + ": " + currentInput + key;
       s.write(messages[queue]);
       queue++;
       currentInput = "";
