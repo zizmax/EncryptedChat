@@ -5,6 +5,9 @@ String input = new String();
 int data[];
 String currentInput = new String();
 String lastInput = new String();
+String messages[] = new String[] {"", "", "", "", ""};
+int queue = 0;
+String user = "Client";
 
 void setup() 
 {
@@ -20,12 +23,19 @@ void draw()
 {
   background(255, 255, 255);
   fill(0);
-  text(input, width/2, height/2);
+  for(int i = 0; i < messages.length; i++){
+    text(messages[i], width/6, height/2 + (i * 20));
+  }
   fill(255, 0, 0);
   text(currentInput, width/2, height*.75);
   // Receive data from server
   if (c.available() > 0) {
     input = c.readString();
+    if(queue == 5){
+        queue = 0;
+    }
+    messages[queue] = input;
+    queue++;
     println(input);
     background(255, 255, 255);
     fill(0);
@@ -36,8 +46,8 @@ void draw()
 
   void keyPressed(){
     if(key == ENTER){
-      lastInput = currentInput = currentInput + key;
-      c.write(lastInput);
+      messages[queue] = currentInput = user + ": " + currentInput + key;
+      c.write(messages[queue]);
       currentInput = "";
     }
     else if(key == BACKSPACE && currentInput.length() > 0){
