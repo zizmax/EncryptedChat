@@ -6,6 +6,8 @@ String input = new String();
 int data[];
 String lastInput = new String();
 String currentInput = new String();
+String messages[] = new String[5];
+int queue = 0;
 
 void setup() 
 {
@@ -18,9 +20,14 @@ void setup()
 
 void draw() 
 {
+  String ip = s.ip();
   background(255, 255, 255);
   fill(0);
-  text(input, width/2, height/2);
+  text(ip, 40, 40);
+  for(int i = 0; i < messages.length; i++){
+    text(messages[i], width/6, (height/2 + (i * 20)));
+    println("printed!");
+  }
   fill(255, 0, 0);
   text(currentInput, width/2, height*.75);
   // Receive data from client
@@ -36,8 +43,12 @@ void draw()
 }
   void keyPressed(){
     if(key == ENTER){
-      lastInput = currentInput = currentInput + key;
-      s.write(lastInput);
+      if(queue == 5){
+        queue = 0;
+      }
+      messages[queue] = currentInput = currentInput + key;
+      s.write(messages[queue]);
+      queue++;
       currentInput = "";
     }
     else if(key == BACKSPACE && currentInput.length() > 0){
