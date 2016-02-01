@@ -6,7 +6,7 @@ int data[];
 String currentInput = new String();
 String lastInput = new String();
 String messages[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
-String user = "Client";
+String user = "Nate 2";
 
 void setup() 
 {
@@ -15,7 +15,7 @@ void setup()
   stroke(0);
   frameRate(30); // Slow it down a little
   // Connect to the server's IP address and port
-  c = new Client(this, "127.0.0.1", 12345); // Replace with your server's IP and port
+  c = new Client(this, "162.243.72.55", 12345); // Replace with your server's IP and port
 }
 
 void draw() 
@@ -30,8 +30,13 @@ void draw()
   // Receive data from server
   if (c.available() > 0) {
     input = c.readString();
-    System.arraycopy(messages, 0, messages, 1, messages.length - 1);
-    messages[0] = input;
+    if(!input.equals(messages[0])){
+      System.arraycopy(messages, 0, messages, 1, messages.length - 1);
+      messages[0] = input;
+    }
+    else{
+      //Do nothing to prevent your own message from being displayed twice;
+    }
   }
 }
 
