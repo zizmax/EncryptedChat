@@ -6,7 +6,7 @@ int data[];
 String currentInput = new String();
 String lastInput = new String();
 String messages[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
-String user = "Nate 2";
+String user = "Client";
 
 void setup() 
 {
@@ -15,7 +15,7 @@ void setup()
   stroke(0);
   frameRate(30); // Slow it down a little
   // Connect to the server's IP address and port
-  c = new Client(this, "162.243.72.55", 12345); // Replace with your server's IP and port
+  c = new Client(this, "127.0.0.1", 12345); // Replace with your server's IP and port
 }
 
 void draw() 
