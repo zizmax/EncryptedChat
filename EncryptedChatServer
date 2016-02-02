@@ -6,7 +6,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-import org.apache.commons.codec.binary.Base64;
+//import org.apache.commons.codec.binary.Base64;
 
 Server s;
 Client c;
@@ -15,7 +15,10 @@ int data[];
 String lastInput = new String();
 String currentInput = new String();
 String messages[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
-String user = "Server";
+String users[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
+String ips[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
+
+String username = "Server";
 
 String key1 = "Bar12345Bar12345";
 String initVector = "RandomInitVector"; // 16 bytes IV
@@ -23,6 +26,7 @@ String initVector = "RandomInitVector"; // 16 bytes IV
 void setup() 
 {
   size(450, 255);
+  frame.setResizable(true);
   background(204);
   stroke(0);
   frameRate(30); // Slow it down a little
@@ -53,7 +57,7 @@ void draw()
   void keyPressed(){
     if(key == ENTER){
       System.arraycopy(messages, 0, messages, 1, messages.length - 1);
-      messages[0] = currentInput = user + ": " + currentInput + key;
+      messages[0] = currentInput = username + ": " + currentInput + key;
       s.write(messages[0]);
       println(messages[0]);
       //s.write(encrypt(messages[0]), initVector, key1);
@@ -68,6 +72,11 @@ void draw()
     else{
       currentInput = currentInput + key;
     }
+}
+
+void serverEvent(Server s, Client c) {
+  s.write("Client from " + c.ip() + " connected!");
+  messages[0] = "Client from " + c.ip() + " connected!";
 }
 
 String encrypt(String key1, String initVector, String value) {
