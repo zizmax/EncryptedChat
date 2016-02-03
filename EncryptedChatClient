@@ -47,12 +47,14 @@ void draw()
     if(key == ENTER){
       System.arraycopy(messages, 0, messages, 1, messages.length - 1);
       chunkList = splitEqually(currentInput, 40);
-      messages[0] = currentInput = username + ": " + currentInput + key;
-      //c.write(messages[0]);
-      c.write(username + ": " + chunkList.get(0) + "\n");
-        for(int pos = 1; pos<chunkList.size(); pos++){
-          c.write(chunkList.get(pos) + "\n");
-        }
+      for (String s : chunkList){
+        currentInput += s + "\n";
+      }
+      currentInput = username + ": " + currentInput; 
+ 
+      messages[0] = currentInput;
+      c.write(messages[0]);
+      
       currentInput = "";
     }
     else if(key == BACKSPACE && currentInput.length() > 0){
