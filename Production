@@ -1,0 +1,66 @@
+import processing.net.*;
+
+Client c;
+String input = new String();
+int data[];
+String currentInput = new String();
+String lastInput = new String();
+String messages[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
+String username = "Client";
+String ip = "162.243.72.55";
+
+void setup() 
+{
+  size(450, 255);
+  frame.setResizable(true);
+  background(204);
+  stroke(0);
+  frameRate(30);
+  c = new Client(this, ip, 12345);
+  if(!c.active()){
+    frame.setTitle("EncryptedChat [Failed to connect]");
+  }
+  else{
+    frame.setTitle("EncryptedChat [Connected]");
+  }
+}
+
+void draw() 
+{
+  background(255, 255, 255);
+  fill(0);
+  for(int i = messages.length - 1; i >= 0; i--){
+    text(messages[i], width/6, height/1.1 - (i * 20));
+  }
+  fill(255, 0, 0);
+  text(currentInput, width/6, height/1.1 + 20);
+  // Receive data from server
+  if (c.available() > 0) {
+    input = c.readString();
+    if(!input.equals(messages[0])){
+      System.arraycopy(messages, 0, messages, 1, messages.length - 1);
+      messages[0] = input;
+    }
+    else{
+      //Do nothing to prevent your own message from being displayed twice;
+    }
+  }
+}
+
+void keyPressed(){
+  if(key == ENTER){
+    System.arraycopy(messages, 0, messages, 1, messages.length - 1);
+    messages[0] = currentInput = username + ": " + currentInput + key;
+    c.write(messages[0]);
+    currentInput = "";
+  }
+  else if(key == BACKSPACE && currentInput.length() > 0){
+    currentInput = currentInput.substring(0, currentInput.length() - 1);
+  }
+  else if(key == CODED){
+    // Do nothing to ignore non-alphanumeric keys, i.e. SHIFT and UP and CAPSLOCK
+  }
+  else{
+    currentInput = currentInput + key;
+  }
+}
