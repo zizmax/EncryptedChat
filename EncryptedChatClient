@@ -6,7 +6,9 @@ int data[];
 String currentInput = new String();
 String lastInput = new String();
 String messages[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
+ArrayList<String> chunkList = new ArrayList<String>();
 String username = "Client";
+
 
 void setup() 
 {
@@ -44,8 +46,13 @@ void draw()
   void keyPressed(){
     if(key == ENTER){
       System.arraycopy(messages, 0, messages, 1, messages.length - 1);
+      chunkList = splitEqually(currentInput, 40);
       messages[0] = currentInput = username + ": " + currentInput + key;
-      c.write(messages[0]);
+      //c.write(messages[0]);
+      c.write(username + ": " + chunkList.get(0) + "\n");
+        for(int pos = 1; pos<chunkList.size(); pos++){
+          c.write(chunkList.get(pos) + "\n");
+        }
       currentInput = "";
     }
     else if(key == BACKSPACE && currentInput.length() > 0){
@@ -57,4 +64,14 @@ void draw()
     else{
       currentInput = currentInput + key;
     }
+}
+public static ArrayList<String> splitEqually(String text, int size) {
+    // Give the list the right capacity to start with. You could use an array
+    // instead if you wanted.
+    ArrayList<String> ret = new ArrayList<String>((text.length() + size - 1) / size);
+
+    for (int start = 0; start < text.length(); start += size) {
+        ret.add(text.substring(start, Math.min(text.length(), start + size)));
+    }
+    return ret;
 }
