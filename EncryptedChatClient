@@ -3,6 +3,7 @@ import processing.net.*;
 Client c;
 String input = new String();
 int data[];
+int chars;
 String currentInput = new String();
 String lastInput = new String();
 String messages[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
@@ -18,7 +19,7 @@ void setup()
   stroke(0);
   frameRate(30); // Slow it down a little
   // Connect to the server's IP address and port
-  c = new Client(this, "127.0.0.1", 12345); // Replace with your server's IP and port
+  c = new Client(this, "162.243.72.55", 12345); // Replace with your server's IP and port
 }
 
 void draw() 
@@ -26,10 +27,10 @@ void draw()
   background(255, 255, 255);
   fill(0);
   for(int i = messages.length - 1; i >= 0; i--){
-    text(messages[i], width/6, height/1.1 - (i * 20));
+    text(messages[i], width/6, height/1.3 - (i * 20));
   }
   fill(255, 0, 0);
-  text(currentInput, width/6, height/1.1 + 20);
+  text(currentInput, width/6, height/1.3 + 20);
   // Receive data from server
   if (c.available() > 0) {
     input = c.readString();
@@ -46,34 +47,36 @@ void draw()
   void keyPressed(){
     if(key == ENTER){
       System.arraycopy(messages, 0, messages, 1, messages.length - 1);
-      chunkList = splitEqually(currentInput, 40);
-      for (String s : chunkList){
-        currentInput += s + "\n";
-      }
+      //chunkList = splitEqually(currentInput, 40);
+      //for (String s : chunkList){
+      //  currentInput += s + "\n";
+      //}
       currentInput = username + ": " + currentInput; 
  
       messages[0] = currentInput;
       c.write(messages[0]);
       
       currentInput = "";
+      chars = 0;
     }
     else if(key == BACKSPACE && currentInput.length() > 0){
       currentInput = currentInput.substring(0, currentInput.length() - 1);
+      chars--;
     }
     else if(key == CODED){
       // Do nothing to ignore non-alphanumeric keys, i.e. SHIFT and UP and CAPSLOCK
     }
     else{
+      if(chars == 150){
+        
+      }
+      else if(chars == 50 || chars == 100){
+        currentInput = currentInput + key + "\n";
+        chars++;
+      }
+      else{
       currentInput = currentInput + key;
+      chars++; 
+      }
     }
-}
-public static ArrayList<String> splitEqually(String text, int size) {
-    // Give the list the right capacity to start with. You could use an array
-    // instead if you wanted.
-    ArrayList<String> ret = new ArrayList<String>((text.length() + size - 1) / size);
-
-    for (int start = 0; start < text.length(); start += size) {
-        ret.add(text.substring(start, Math.min(text.length(), start + size)));
-    }
-    return ret;
 }
