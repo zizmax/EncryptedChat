@@ -4,6 +4,7 @@ Client c;
 String input = new String();
 int data[];
 int chars;
+boolean chatting = false;
 String currentInput = new String();
 String lastInput = new String();
 String messages[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
@@ -17,35 +18,47 @@ void setup()
   frame.setResizable(true);
   background(204);
   stroke(0);
-  frameRate(30); // Slow it down a little
-  // Connect to the server's IP address and port
-  c = new Client(this, "162.243.72.55", 12345); // Replace with your server's IP and port
+  frameRate(30);
 }
 
 void draw() 
 {
-  background(255, 255, 255);
-  fill(0);
-  for(int i = messages.length - 1; i >= 0; i--){
-    text(messages[i], width/6, height/1.3 - (i * 20));
+  if(!chatting){
+    background(frameCount % 90, frameCount % 180, frameCount % 270);
+    text("Type a username: ", width/6, height/1.3);
+    text(currentInput, width/6 + 105, height/1.3);
   }
-  fill(255, 0, 0);
-  text(currentInput, width/6, height/1.3 + 20);
-  // Receive data from server
-  if (c.available() > 0) {
-    input = c.readString();
-    if(!input.equals(messages[0])){
-      System.arraycopy(messages, 0, messages, 1, messages.length - 1);
-      messages[0] = input;
+  if(chatting){
+    background(255, 255, 255);
+    fill(0);
+    for(int i = messages.length - 1; i >= 0; i--){
+      text(messages[i], width/6, height/1.3 - (i * 20));
     }
-    else{
-      //Do nothing to prevent your own message from being displayed twice;
+    fill(255, 0, 0);
+    text(currentInput, width/6, height/1.3 + 20);
+    // Receive data from server
+    if (c.available() > 0) {
+      input = c.readString();
+      if(!input.equals(messages[0])){
+        System.arraycopy(messages, 0, messages, 1, messages.length - 1);
+        messages[0] = input;
+      }
+      else{
+        //Do nothing to prevent your own message from being displayed twice;
+      }
     }
   }
 }
 
   void keyPressed(){
     if(key == ENTER){
+      if(!chatting){
+        username = currentInput;
+        c = new Client(this, "162.243.72.55", 12345); // Replace with your server's IP and port
+        chatting = true;
+        currentInput = "";
+        return;
+      }
       System.arraycopy(messages, 0, messages, 1, messages.length - 1);
       //chunkList = splitEqually(currentInput, 40);
       //for (String s : chunkList){
