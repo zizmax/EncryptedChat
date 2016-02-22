@@ -1,5 +1,6 @@
 import processing.video.*;
-
+import java.net.*;
+import java.io.*;
 import javax.imageio.*;
 import java.awt.image.*; 
 
@@ -20,6 +21,7 @@ void setup() {
   }
   // Initialize Camera
   cam = new Capture( this, width,height,30);
+  cam.start();
 }
 
 void captureEvent( Capture c ) {
