@@ -1,0 +1,185 @@
+import processing.net.*;
+
+Client c;
+String input = new String();
+int data[];
+int chars;
+boolean chatting = false;
+String currentInput = new String();
+String lastInput = new String();
+String messages[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
+String username = "Client";
+String passkey = "";
+String version = "0.0.3 Alpha (UI)";
+int red;
+int green;
+int blue;
+
+void setup() 
+{
+  frame.setTitle("Whysper"); 
+  size(450, 255);
+  frame.setResizable(true);
+  background(204);
+  stroke(0);
+  frameRate(60);
+}
+
+void draw() 
+{
+  if(!chatting){
+    background(Math.abs(frameCount % 512 - 256), Math.abs(frameCount % 1024 - 512) - 256, Math.abs(frameCount % 2048 - 1024) - 512);
+    text("Version: " + version, width - 130, 20);
+    if(username == "Client"){
+      text("Type a username: ", width/6, height/1.3);
+    }
+    else{
+      text("Welcome " + username + "!", width/6 - 9, height/1.4); 
+      text("Enter a passphrase: ", width/6 - 9, height/1.3);
+    }
+    text(currentInput, width/6 + 105, height/1.3);
+  }
+  if(chatting){
+    background(255, 255, 255);
+    fill(0);
+    for(int i = messages.length - 1; i >= 0; i--){
+      if (messages[i] != ""){
+          fill(100);
+          //rect(width/6 - 6, height/1.3 - 10 - (i * 20), messages[i].length() * 6 + 12, 12, 7);
+      }
+      fill(0);
+      int count = 0;
+      for (int j = 0; j < messages[i].length(); j++){
+        if(messages[i].charAt(j) == '\n')
+          count++;
+      }
+      text(messages[i], width/6, height/1.3 - (i * 20));
+      
+
+    }
+    fill(255, 0, 0);
+    text(currentInput, width/6, height/1.3 + 20);
+    // Receive data from server
+    if (c.available() > 0) {
+      input = c.readString();
+      if(input.length() >= 6){
+        if(!input.substring(0,6).equals("Client")) input = vigenere(input, passkey, false);
+      }
+      if(!input.equals(messages[0])){
+        System.arraycopy(messages, 0, messages, 1, messages.length - 1);
+        messages[0] = input;
+      }
+      else{
+        //Do nothing to prevent your own message from being displayed twice;
+      }
+    }
+  }
+}
+
+  void keyPressed(){
+    if(key == ENTER){
+      if(!chatting){
+        if(username == "Client"){
+          username = currentInput;
+          c = new Client(this, "162.243.72.55", 12345); // Replace with your server's IP and port
+        }
+        else{
+         passkey = currentInput;
+         chatting = true;
+        }
+        currentInput = "";
+        return;
+      }
+      System.arraycopy(messages, 0, messages, 1, messages.length - 1);
+      currentInput = username + ": " + currentInput; 
+      messages[0] = currentInput;
+      c.write(vigenere(currentInput, passkey, true));
+      println("E: " + vigenere(currentInput, passkey, true));
+      
+      currentInput = "";
+      chars = 0;
+    }
+    else if(key == BACKSPACE && currentInput.length() > 0){
+      currentInput = currentInput.substring(0, currentInput.length() - 1);
+      chars--;
+    }
+    else if(key == CODED){
+      // Do nothing to ignore non-alphanumeric keys, i.e. SHIFT and UP and CAPSLOCK
+    }
+    else{
+      if(chars == 150){
+        
+      }
+      else if(chars == 50 || chars == 100){
+        currentInput = currentInput + key + "\n";
+        chars++;
+      }
+      else{
+      currentInput = currentInput + key;
+      chars++; 
+      }
+    }
+}
+
+
+String vigenere(String plaintext, String key, boolean encrypt) {
+
+    final int textSize = plaintext.length();
+    final int keySize = key.length();
+
+    final int groupSize1 = 'Z' - 'A' + 1;
+    final int groupSize2 = 'z' - 'a' + 1;
+    final int totalGroupSize = groupSize1 + groupSize2;
+
+    final StringBuilder encryptedText = new StringBuilder(textSize);
+    for (int i = 0; i < textSize; i++) {
+        final char plainChar = plaintext.charAt(i);
+
+        // this should be a method, called for both the plain text as well as the key
+        final int plainGroupNumber; 
+        if (plainChar >= 'A' && plainChar <= 'Z') {
+            plainGroupNumber = plainChar - 'A';
+        } else if (plainChar >= 'a' && plainChar <= 'z') {
+            plainGroupNumber = groupSize1 + plainChar - 'a';
+        } else {
+            // simply leave spaces and other characters
+            encryptedText.append(plainChar);
+            continue;
+        }
+
+        final char keyChar = key.charAt(i % keySize);
+        final int keyGroupNumber; 
+        if (keyChar >= 'A' && keyChar <= 'Z') {
+            keyGroupNumber = keyChar - 'A';
+        } else if (keyChar >= 'a' && keyChar <= 'z') {
+            keyGroupNumber = groupSize1 + keyChar - 'a';
+        } else {
+            throw new IllegalStateException("Invalid character in key");
+        }
+
+        // this should be a separate method
+        final int cipherGroupNumber;
+        if (encrypt) {
+            cipherGroupNumber = (plainGroupNumber + keyGroupNumber) % totalGroupSize;
+        } else {
+            // some code to go around the awkward way of handling % in Java for negative numbers
+            final int someCipherGroupNumber = plainGroupNumber - keyGroupNumber;
+            if (someCipherGroupNumber < 0) {
+                cipherGroupNumber = (someCipherGroupNumber + totalGroupSize);
+            } else {
+                cipherGroupNumber = someCipherGroupNumber;
+            }
+        }
+
+        // this should be a separate method
+        final char cipherChar;
+        if (cipherGroupNumber < groupSize1) {
+            cipherChar = (char) ('A' + cipherGroupNumber);
+        } else {
+            cipherChar = (char) ('a' + cipherGroupNumber - groupSize1);
+        }
+        encryptedText.append(cipherChar);
+    }
+
+    return encryptedText.toString();
+}
