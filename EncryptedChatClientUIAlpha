@@ -26,8 +26,9 @@ void setup()
   background(204);
   stroke(0);
   frameRate(60);
-  PFont font = loadFont("HelveticaNeue-16.vlw");
-  textFont(font, 16);
+  //These lines are commented out to prevent crashing if font isn't loaded. Load font and uncomment to use Alpha
+  //PFont font = loadFont("HelveticaNeue-16.vlw");
+  //textFont(font, 16);
 }
 
 void draw()
