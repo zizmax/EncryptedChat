@@ -1,0 +1,137 @@
+import processing.net.*;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
+import java.util.Arrays;
+
+//import org.apache.commons.codec.binary.Base64;
+
+Server s;
+Client c;
+String input = new String();
+int data[];
+String lastInput = new String();
+String currentInput = new String();
+String messages[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
+String users[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
+String ips[] = new String[] {"", "", "", "", "", "", "", "", "", ""};
+int connectedClients = 0;
+
+String username = "Server";
+
+String key1 = "Bar12345Bar12345";
+String initVector = "RandomInitVector"; // 16 bytes IV
+
+void setup() 
+{
+  size(450, 255);
+  frame.setResizable(true);
+  background(204);
+  stroke(0);
+  frameRate(30); // Slow it down a little
+  s = new Server(this, 12345); // Start a simple server on a port
+}
+
+void draw() 
+{
+  String ip = s.ip();
+  background(255, 255, 255);
+  fill(0);
+  text(ip, 40, 30);
+  if(frameCount % 30 == 1){
+      s.write(Integer.toString(connectedClients));
+  }
+  //text(connectedClients, 40, 40);
+  for(int i = messages.length - 1; i >= 0; i--){
+    text(messages[i], width/6, height/1.1 - (i * 20));
+  }
+  fill(255, 0, 0);
+  text(currentInput, width/6, height/1.1 + 20);
+  // Receive data from client
+  c = s.available();
+  if (c != null) {
+    input = c.readString();
+    s.write(input);
+    System.arraycopy(messages, 0, messages, 1, messages.length - 1);
+    messages[0] = input;
+    println(messages[0]);
+  }
+}
+
+void disconnectEvent(Client c){
+ connectedClients--;
+  
+}
+  void keyPressed(){
+    if(key == ENTER){
+      System.arraycopy(messages, 0, messages, 1, messages.length - 1);
+      messages[0] = currentInput = username + ": " + currentInput + key;
+      s.write(messages[0]);
+      println(messages[0]);
+      //s.write(encrypt(messages[0]), initVector, key1);
+      currentInput = "";
+    }
+    else if(key == BACKSPACE && currentInput.length() > 0){
+      currentInput = currentInput.substring(0, currentInput.length() - 1);
+    }
+        else if(key == CODED){
+      // Do nothing to ignore non-alphanumeric keys, i.e. SHIFT and UP and CAPSLOCK
+    }
+    else{
+      currentInput = currentInput + key;
+    }
+}
+
+void serverEvent(Server s, Client c) {
+  s.write("Client from " + c.ip() + " connected!");
+  messages[0] = "Client from " + c.ip() + " connected!";
+  connectedClients++;
+}
+
+
+String encrypt(String key1, String initVector, String value) {
+    try {
+        IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+        SecretKeySpec skeySpec = new SecretKeySpec(key1.getBytes("UTF-8"), "AES");
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+        byte[] encrypted = cipher.doFinal(value.getBytes());
+        System.out.println("encrypted string:" + DatatypeConverter.printBase64Binary(encrypted)); 
+        //byte[] original = cipher.doFinal(DatatypeConverter.parseBase64Binary(encrypted.toString()));
+
+        return DatatypeConverter.printBase64Binary(encrypted);
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+
+    return null;
+}
+
+public static String decrypt(String key1, String initVector, String encrypted) {
+  key1 = "Bar12345Bar12341";
+    try {
+        IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+        SecretKeySpec skeySpec = new SecretKeySpec(key1.getBytes("UTF-8"), "AES");
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+        byte[] original = cipher.doFinal(DatatypeConverter.parseBase64Binary(encrypted));
+
+        return new String(original);
+    } 
+    catch (javax.crypto.BadPaddingException e){
+      println("Wrong key!");
+      return "Try again with the correct key!";
+      
+    }    
+    catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return null;
+}
