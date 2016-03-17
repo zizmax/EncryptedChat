@@ -16,6 +16,23 @@ int green;
 int blue;
 int connectedClients = 0;
 String error = "";
+String choice;
+String splashText[] = new String[] {"What hath God wrought?|Samuel Morse, May 28, 1844", 
+"SOS SOS CQD We are sinking fast, passengers being put into boats|RMS Titanic, 15 April 1912",
+"GLAD YOU’RE OK!!|Sent over SMS on 9/11/2001 as published by WikiLeaks",
+"Call me if u can.Im scared!!|Sent over SMS on 9/11/2001 as published by WikiLeaks",
+"What the hell is happening up there???? Planes gone bezerk??|Sent over SMS on 9/11/2001 as published by WikiLeaks",
+"Don’t f---ing talk to me. You almost just ruined my whole life|Tiger Woods to Joslyn James, Oct 4, 2009",
+"It's a boy.|Edward Teller, sent to to colleagues in Los Alamos after first full-scale hydrogen bomb test, November 1, 1952",
+"Mr. Watson, come here. I want to see you.|Alexander Graham Bell, March 10, 1876",
+"just setting up my twttr|Jack Dorsey, March 21, 2006",
+"Me at the zoo|Name of the first YouTube video, April 23, 2005, posted by founder @jawed",
+"Merry Christmas.|Neil Papworth, December 3, 1992",
+"Monotremes oviparous, ovum meroblastic.|W. H. Caldwell, sent to London upon discovering that the platypus lays eggs, 1884",
+"Hello from Earth.|Sent from Australian scientists in 2009 to Gliese 581d, the nearest Earth-like planet outside the solar system likely to support life. The texts will arrive in 2029."};
+
+
+
 
 void setup() 
 {
@@ -25,6 +42,7 @@ void setup()
   background(204);
   stroke(0);
   frameRate(60);
+  choice = splashText[Math.round(random(0, splashText.length - 1))];
 }
 
 void draw() 
@@ -32,6 +50,10 @@ void draw()
   if(!chatting){
     background(Math.abs(frameCount % 512 - 256), Math.abs(frameCount % 1024 - 512) - 256, Math.abs(frameCount % 2048 - 1024) - 512);
     text("Version: " + version, width - 130, 20);
+    rect(width/2, height/2, 4, 4);
+    text(choice.substring(0, choice.indexOf("|")), width/2 - ((choice.indexOf("|") * 5) / 2), height/2);
+    text(choice.substring(choice.indexOf("|") + 1, choice.length()), 50, 50);
+    textAlign(CENTER, CENTER);
     if(username == "Client"){
       text("Type a username: ", width/6, height/1.3);
       if(error.equals("shortuser")){
